@@ -11,7 +11,6 @@ module Hercules.Static
   , loginPage
   , loggedInPage
   , userInfoPage
-  , passwordLogin
   ) where
 
 
@@ -81,9 +80,6 @@ loginPage name stateString frontendURL = do
 
 makeState :: FrontendURL -> Maybe AuthClientState -> App AuthState
 makeState frontendURL = pure . AuthState frontendURL
-
-passwordLogin :: LoginForm -> App ()
-passwordLogin form = return ()
 
 userInfoPage :: UserId -> App Html
 userInfoPage uid =

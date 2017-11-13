@@ -10,9 +10,9 @@ import Material.Button as Button
 import Material.Options as Options
 import Material.Textfield as Textfield
 import Models.AppEnv exposing (..)
-import OAuth
-import OAuth.Password as OPassword
-import Request.User
+--import OAuth
+--import OAuth.Password as OPassword
+--import Request.User
 import Route
 import Utils exposing (..)
 
@@ -30,7 +30,7 @@ type Msg
   = SetUsername String
   | SetPassword String
   | Submit
-  | LoginAnswer (Result Http.Error OAuth.ResponseToken)
+  | LoginAnswer (Result Http.Error ()) --OAuth.ResponseToken)
   | Mdl (Material.Msg Msg)
 
 type ExternalMsg
@@ -79,7 +79,7 @@ update env msg model =
     Submit ->
       -- TODO validation
       model
-        => Http.send LoginAnswer
+        => Cmd.none {- Http.send LoginAnswer
           (OPassword.authenticate (OAuth.Password
           { credentials = Nothing
           , scope = []
@@ -87,7 +87,7 @@ update env msg model =
           , username = model.username
           , password = model.password
           , url = env.backendURL ++ "/login"
-          }))
+          }))-}
         => NoOp
 
     SetUsername s ->
