@@ -3,4 +3,5 @@ module Models.AppEnv exposing (..)
 
 type alias AppEnv =
   { backendURL : String
+--  , logoURL : String
   }

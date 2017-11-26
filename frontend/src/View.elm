@@ -10,8 +10,6 @@ import Material.Options as Options
 import Material.Footer as Footer
 import Components.Navbar as Navbar
 import Pages.Project
---import Pages.Jobset as Jobset exposing (..)
-import Pages.Login
 import Msg exposing (..)
 import Models exposing (..)
 --import Utils exposing (..)
@@ -66,8 +64,8 @@ viewBody model =
                         Footer.right []
                             [ Footer.logo
                                 []
-                                [ Footer.html <| softwareLink "Nix" "http://nixos.org/nix/" model.hydraConfig.nixVersion
-                                , Footer.html <| softwareLink "Hydra" "http://nixos.org/hydra/" model.hydraConfig.hydraVersion
+                                [ Footer.html <| softwareLink "Nix" "http://nixos.org/nix/" "" -- model.appEnv.nixVersion
+                                , Footer.html <| softwareLink "Hydra" "http://nixos.org/hydra/" "" --model.appEnv.hydraVersion
                                 ]
                             ]
                     }
@@ -76,30 +74,9 @@ viewBody model =
 
 pageToView : AppModel -> List (Html Msg)
 pageToView model =
-    case model.currentPage of
-        HomePage -> []
---            Pages.Project.view model
+  case model.currentPage of
+    InitPage -> []
+    ProjectPage m ->
+      Pages.Project.view m
+        |> List.map (Html.map ProjectMsg)
 
-        LoginPage m ->
-            Pages.Login.view m
-              |> List.map (Html.map LoginMsg)
-
-        ProjectPage m ->
-            Pages.Project.view m
-              |> List.map (Html.map ProjectMsg)
-
-        NewProjectPage -> []
---            Pages.Project.view model
-
-        JobsetPage projectName jobsetName -> []
-{-            case List.head (List.filter (\p -> p.name == projectName) model.projects) of
-                Just project ->
-                    case List.head (List.filter (\j -> j.name == jobsetName) project.jobsets) of
-                        Just jobset ->
-                            Jobset.view model
-
-                        Nothing ->
-                            render404 ("Jobset " ++ jobsetName ++ " does not exist.")
-
-                Nothing ->
-                    render404 ("Project " ++ projectName ++ " does not exist.")-}

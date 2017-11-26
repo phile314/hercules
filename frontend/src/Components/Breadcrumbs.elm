@@ -21,7 +21,7 @@ renderBreadcrumbs : List Breadcrumb -> List (Html Msg)
 renderBreadcrumbs breadcrumbs =
     let
         home =
-            a (onClickPage GotoRoute Home) [ text "Hydra" ]
+            a (onClickPage GotoRoute Projects) [ text "Hydra" ]
 
         render breadcrumb =
             case breadcrumb.page of
@@ -48,24 +48,9 @@ breadCrumbs model =
     let
         breadcrumbs =
             case model.currentPage of
-                HomePage ->
+                InitPage ->
                     []
-
-                LoginPage _ ->
-                    [ Breadcrumb "Login" Nothing ]
-
-                NewProjectPage ->
-                    [ Breadcrumb "New Project" Nothing ]
-
-                ProjectPage project -> []
---                    [ Breadcrumb project Nothing ]
-
-                JobsetPage project jobset -> []
-{-                  let name = case project.subPage of
-                        ViewAll _ -> "All Projects"
-                  in
-                    [ Breadcrumb project (Just (Route.Project project))
-                    , Breadcrumb jobset Nothing
-                    ]-}
+                ProjectPage project ->
+                    [ Breadcrumb "Projects" Nothing ]
     in
         renderBreadcrumbs breadcrumbs

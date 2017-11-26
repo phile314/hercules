@@ -3,10 +3,9 @@ module Update exposing (..)
 import Debug
 import Material
 import Models exposing (..)
+import Models.AppEnv exposing (..)
 import Msg exposing (..)
---import Components.LiveSearch as LiveSearch
 import Route exposing (..)
-import Pages.Login as Login
 import Pages.Project as Project
 import Utils exposing ((=>))
 
@@ -16,14 +15,12 @@ update msg model =
         (Mdl msg_, _) ->
             Material.update msg_ model
 
-        (FetchSucceed init, _) ->
-            ( model, Cmd.none )
 
-        (FetchFail msg, _) ->
-            ( model, Cmd.none )
+        (GotoRoute route, _) ->
+          (model, Route.modifyUrl route)
 
-        (LoginUserClick, _) ->
-            ( model, Route.modifyUrl Login)
+        (UnsafeSetRoute route, _) ->
+            setRoute route model
 
         (ProjectMsg subMsg, ProjectPage subModel) ->
             let
@@ -36,59 +33,22 @@ update msg model =
                 (Project.GotoRoute r) ->
                   model => Route.modifyUrl r
 
-        (LoginMsg subMsg, LoginPage subModel) ->
-            let
-              ((pageModel, cmd), msgFromPage) = Login.update model.appEnv subMsg subModel
-              newModel = case msgFromPage of
-                Login.NoOp -> model
-            in
-              { newModel | currentPage = LoginPage pageModel }
-                => Cmd.map LoginMsg cmd
-
-        (LogoutUserClick, _) ->
-            -- TODO: well, should we cleanup something?
-            ( { model | user = Nothing }, Cmd.none )
-
-        (PreferencesClick, _) ->
-            ( model, Cmd.none )
-
-{-        (LiveSearchMsg searchmsg, _) ->
-            let
-                ( newmodel, cmds ) =
-                    LiveSearch.update searchmsg model
-            in
-                ( newmodel, Cmd.map LiveSearchMsg cmds )-}
-
-        (GotoRoute route, _) ->
-          (model, Route.modifyUrl route)
-
-        (UnsafeSetRoute route, _) ->
-            setRoute route model
-
-        (ClickCreateProject, _) ->
-            -- TODO: http
-            ( model, Cmd.none )
 
         ( _, _ ) ->
           -- Disregard incoming messages that arrived for the wrong page
           model => Cmd.none
 
+
 setRoute : Maybe Route -> AppModel -> ( AppModel, Cmd Msg)
-setRoute route model = Debug.log ("setting route") (
+setRoute route model =
   case route of
 
-    Nothing -> { model | currentPage = HomePage } => Cmd.none
+    Nothing -> { model | currentPage = InitPage } => Cmd.none
 
-    Just Home -> { model | currentPage = HomePage } => Cmd.none
-
-    Just Login -> { model | currentPage = LoginPage Login.initialModel } => Cmd.none
-
-    Just (Project p) ->
+    (Just Projects) ->
       let
         ( m, cmd ) = Project.init model.appEnv
       in
         { model | currentPage = ProjectPage m } => Cmd.map ProjectMsg cmd
-    
-    Just NewProject -> { model | currentPage = NewProjectPage } => Cmd.none
 
-    Just (Jobset a b) -> { model | currentPage = JobsetPage a b } => Cmd.none)
+

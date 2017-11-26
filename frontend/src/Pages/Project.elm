@@ -1,5 +1,6 @@
 module Pages.Project exposing (..)
 
+import Debug
 import Hercules exposing (Project)
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -14,8 +15,6 @@ import Material.Table as Table
 import Material.Textfield as Textfield
 import Material.Toggles as Toggles
 import Models.AppEnv exposing (..)
---import Components.LiveSearch exposing (search)
---import Components.Help exposing (..)
 import RemoteData exposing (RemoteData(..), WebData)
 import RemoteData.Http
 import Route as Route exposing (..)
@@ -66,7 +65,7 @@ projectsView : Model -> WebData (List Project) -> List (Html Msg)
 projectsView model projects =
     let
         mdlCtx = { model = model.mdl, msg = Mdl }
-        projects_ = case projects of
+        projects_ = case (Debug.log "projects" projects) of
           Success [] -> render404 "Zero projects. Maybe add one?"
           Success ps -> List.indexedMap (renderProject model) ps
 --          Failure e  -> render400 "Error while loading projects: " ++ e
@@ -162,12 +161,12 @@ renderProject model i project =
         ]
         [ h3
             []
-            [ a (onClickPage (External << GotoRoute) (Route.Project project.projectName))
+            [ {-a (onClickPage (External << GotoRoute) (Route.Project project.projectName))
                 [ Options.span
                     [ Options.css "margin" "16px" ]
                     [ text (project.projectName) ]
                 ]
-            , small
+            ,-} small
                 [ class "hidden-xs" ]
                 [ text ("(" ++ withDefault "" project.projectDescription ++ ")") ]
               -- TODO: correct index

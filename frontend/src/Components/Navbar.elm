@@ -10,17 +10,16 @@ import Material.Options as Options
 import Msg exposing (..)
 import Models exposing (AppModel)
 import Components.Breadcrumbs exposing (breadCrumbs)
-import Components.LiveSearch as LiveSearch
 import Route exposing (..)
 import Utils exposing (..)
 
 
 tabs : AppModel -> List (Html Msg)
 tabs model =
-    [ span [] [ whiteBadge [] [ text (toString model.queueStats.numBuilding) ], text " in progress" ]
+    [ {-span [] [ whiteBadge [] [ text (toString model.queueStats.numBuilding) ], text " in progress" ]
     , span [] [ whiteBadge [] [ text (toString model.queueStats.numWaiting) ], text " in queue" ]
     , span [] [ whiteBadge [] [ text (toString model.queueStats.numMachines) ], text " machines" ]
-    , text "evaluations"
+    ,-} text "evaluations"
     , text "builds"
     , text "steps"
     ]
@@ -29,55 +28,29 @@ tabs model =
 view : AppModel -> List (Html Msg)
 view model =
     let
-        menuItems =
-            case model.user of
-                Nothing ->
-                    [ Menu.item
-                        [ Menu.onSelect <| GotoRoute Login ]
-                        [ menuIcon "input"
-                        , text "Sign in"
-                        ]
-                    ]
-
-                Just user ->
-                    [ Menu.item
-                        [ Menu.onSelect <| PreferencesClick ]
-                        [ menuIcon "settings"
-                        , text "Preferences"
-                        ]
-                    , Menu.item
-                        [ Menu.onSelect <| LogoutUserClick ]
-                        [ Icon.view "power_settings_new"
-                            [ Options.css "width" "40px"
-                            , Options.css "color" "red"
-                            ]
-                        , text "Sign out"
-                        ]
-                    ]
+        menuItems = []
     in
         [ Layout.row []
             [ Layout.title
                 []
-                ([ if model.hydraConfig.logo == "" then
+                ([ {-if model.appEnv.logoURL == "" then-}
                     text ""
-                   else
+{-                   else
                     img
-                        ([ src model.hydraConfig.logo
-                         , alt "Hydra Logo"
+                        ([ src model.appEnv.logoURL
+                         , alt "Hercules Logo"
                          , class "logo"
                          , style [ ( "height", "37px" ), ( "margin", "5px" ) ]
                          ]
-                            ++ (onClickPage GotoRoute Home)
+                            ++ (onClickPage GotoRoute Projects)
                         )
-                        []
+                        []-}
                  ]
                     ++ (breadCrumbs model)
                 )
             , Layout.spacer
-{-            , Layout.navigation []
-                [ Html.map LiveSearchMsg (LiveSearch.view model)
-                , span [] (Maybe.withDefault [] (Maybe.map (\user -> [ text user.name ]) model.user))
-                , Menu.render Mdl
+            , Layout.navigation []
+                [ Menu.render Mdl
                     [ 1 ]
                     model.mdl
                     [ Menu.ripple
@@ -85,6 +58,6 @@ view model =
                     , Menu.icon "account_circle"
                     ]
                     menuItems
-                ]-}
+                ]
             ]
         ]

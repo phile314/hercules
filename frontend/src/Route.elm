@@ -9,60 +9,29 @@ import UrlParser exposing (Parser, (</>), map, int, oneOf, s, string, parsePath)
 {-| Main type representing current url/route
 -}
 type Route
-    = Home
-    | Login
-    | Project String
-    | NewProject
-    | Jobset String String
+    = Projects
 
 
 routeParser : Parser (Route -> a) a
 routeParser =
     oneOf
-        [ map Home (s "")
-        , map Login (s "login")
-        , map Project (s "project" </> string)
-        , map NewProject (s "create-project")
-        , map Jobset (s "jobset" </> string </> string)
+        [ map Projects (s "")
         ]
 
 
 routeToURL : Route -> String
 routeToURL route =
     case route of
-        Home ->
-            "/"
-
-        Login ->
-            "/login"
-
-        Project name ->
-            "/project/" ++ name
-
-        NewProject ->
-            "/create-project"
-
-        Jobset project jobset ->
-            "/jobset/" ++ project ++ "/" ++ jobset
+        Projects ->
+            "/project/"
 
 
 routeToTitle : Route -> String
 routeToTitle route =
     case route of
-        Home ->
+        Projects ->
             "Projects"
 
-        Login ->
-            "Login"
-
-        Project name ->
-            "Project " ++ name
-
-        NewProject ->
-            "New Project"
-
-        Jobset project jobset ->
-            "Jobset " ++ jobset ++ " of project " ++ project
 
 modifyUrl : Route -> Cmd msg
 modifyUrl = routeToURL >> Navigation.modifyUrl
@@ -70,6 +39,6 @@ modifyUrl = routeToURL >> Navigation.modifyUrl
 fromLocation : Location -> Maybe Route
 fromLocation location = Debug.log "location" (
   if String.isEmpty location.pathname then
-    Just Home
+    Just Projects
   else
     parsePath routeParser location)
