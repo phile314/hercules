@@ -1,5 +1,6 @@
 module Route exposing (..)
 
+import Debug
 import Navigation exposing (Location)
 import String
 import UrlParser exposing (Parser, (</>), map, int, oneOf, s, string, parsePath)
@@ -67,8 +68,8 @@ modifyUrl : Route -> Cmd msg
 modifyUrl = routeToURL >> Navigation.modifyUrl
 
 fromLocation : Location -> Maybe Route
-fromLocation location =
+fromLocation location = Debug.log "location" (
   if String.isEmpty location.pathname then
     Just Home
   else
-    parsePath routeParser location
+    parsePath routeParser location)

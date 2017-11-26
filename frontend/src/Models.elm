@@ -4,7 +4,8 @@ import Material
 import Maybe
 import Models.AppEnv exposing (..)
 import Date
-import Pages.Login as Login
+import Pages.Login
+import Pages.Project
 import Route exposing (Route)
 
 type alias Flags =
@@ -101,15 +102,14 @@ type AjaxError msg
 -}
 type Page
     = HomePage
-    | LoginPage Login.Model
-    | ProjectPage String
+    | LoginPage Pages.Login.Model
+    | ProjectPage Pages.Project.Model
     | NewProjectPage
     | JobsetPage String String
 
 type alias AppModel =
     { alert : Maybe Alert
     , hydraConfig : HydraConfig
-    , projects : List Project
     , jobsets : Result AjaxError (List Jobset)
     , jobsetPage : Result AjaxError JobsetPageModel
     , user : Maybe User
@@ -178,59 +178,4 @@ initialModel _ flags =
                     ]
                 }
         , jobsets = Ok []
-        , projects =
-            [ { id = "nixos"
-              , name = "NixOS"
-              , description = "the purely functional Linux distribution"
-              , isShown = True
-              , jobsets = jobsets
-              }
-            , { id = "nix"
-              , name = "Nix"
-              , description = "the purely functional package manager"
-              , isShown = True
-              , jobsets =
-                    [ { id = "master"
-                      , name = "master"
-                      , description = "Master branch"
-                      , queued = 0
-                      , failed = 33
-                      , succeeded = 1
-                      , isShown = True
-                      , lastEvaluation = "2016-05-21 13:57:13"
-                      }
-                    ]
-              }
-            , { id = "nixpkgs"
-              , name = "Nixpkgs"
-              , description = "Nix Packages collection"
-              , isShown = True
-              , jobsets =
-                    [ { id = "trunk"
-                      , name = "trunk"
-                      , description = "Trunk"
-                      , isShown = True
-                      , queued = 0
-                      , failed = 7798
-                      , succeeded = 24006
-                      , lastEvaluation = "2016-05-21 13:57:13"
-                      }
-                    , { id = "staging"
-                      , name = "staging"
-                      , description = "Staging"
-                      , isShown = True
-                      , queued = 0
-                      , failed = 31604
-                      , succeeded = 63
-                      , lastEvaluation = "2016-05-21 13:57:03"
-                      }
-                    ]
-              }
-            , { id = "nixops"
-              , name = "NixOps"
-              , description = "Deploying NixOS machines"
-              , isShown = True
-              , jobsets = []
-              }
-            ]
         }

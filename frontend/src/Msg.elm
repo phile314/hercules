@@ -2,9 +2,10 @@ module Msg exposing (..)
 
 import Material
 import Http
-import Components.LiveSearch as LiveSearch
+--import Components.LiveSearch as LiveSearch
 import Route exposing (..)
 import Pages.Login as Login
+import Pages.Project as Project
 
 
 type Msg
@@ -13,9 +14,10 @@ type Msg
     | FetchFail Http.Error
     | LoginUserClick
     | LoginMsg Login.Msg
+    | ProjectMsg Project.Msg
     | LogoutUserClick
     | PreferencesClick
-    | LiveSearchMsg LiveSearch.Msg
+--    | LiveSearchMsg LiveSearch.Msg
     | ClickCreateProject
     | GotoRoute Route
 

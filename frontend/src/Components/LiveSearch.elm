@@ -68,8 +68,8 @@ search projects =
 
 
 update : Msg -> AppModel -> ( AppModel, Cmd Msg )
-update msg model =
-    case msg of
+update msg model = (model, Cmd.none)
+{-    case msg of
         SearchInput searchstring ->
             let
                 newprojects =
@@ -93,6 +93,7 @@ update msg model =
 
         Mdl msg_ ->
             Material.update msg_ model
+-}
 
 
 view : AppModel -> Html Msg

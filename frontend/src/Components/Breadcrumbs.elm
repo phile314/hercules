@@ -57,12 +57,15 @@ breadCrumbs model =
                 NewProjectPage ->
                     [ Breadcrumb "New Project" Nothing ]
 
-                ProjectPage project ->
-                    [ Breadcrumb project Nothing ]
+                ProjectPage project -> []
+--                    [ Breadcrumb project Nothing ]
 
-                JobsetPage project jobset ->
+                JobsetPage project jobset -> []
+{-                  let name = case project.subPage of
+                        ViewAll _ -> "All Projects"
+                  in
                     [ Breadcrumb project (Just (Route.Project project))
                     , Breadcrumb jobset Nothing
-                    ]
+                    ]-}
     in
         renderBreadcrumbs breadcrumbs

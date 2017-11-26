@@ -1,9 +1,11 @@
 module Pages.Project exposing (..)
 
+import Hercules exposing (Project)
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Maybe
 import List
+import Maybe exposing (..)
+import Material
 import Material.Button as Button
 import Material.Options as Options
 import Material.Elevation as Elevation
@@ -11,20 +13,38 @@ import Material.Menu as Menu
 import Material.Table as Table
 import Material.Textfield as Textfield
 import Material.Toggles as Toggles
-import Components.LiveSearch exposing (search)
-import Components.Help exposing (..)
-import Msg exposing (..)
-import Models exposing (Project, AppModel, Page(..))
+import Models.AppEnv exposing (..)
+--import Components.LiveSearch exposing (search)
+--import Components.Help exposing (..)
+import RemoteData exposing (RemoteData(..), WebData)
+import RemoteData.Http
 import Route as Route exposing (..)
 import Utils exposing (..)
 
 
-view : AppModel -> List (Html Msg)
-view model =
-    case model.currentPage of
-        HomePage ->
-            projectsView model model.projects
+type alias Model =
+  { projects : WebData (List Project)
+  , mdl : Material.Model
+  }
 
+type Msg
+  = LoadProjectsResponse (WebData (List Project))
+  | External ExternalMsg
+  | Mdl (Material.Msg Msg)
+
+type ExternalMsg
+  = NoOp
+  | GotoRoute Route
+
+init : AppEnv -> ( Model, Cmd Msg)
+init env =
+  { projects = Loading, mdl = Material.model }
+    => Hercules.getProjects env.backendURL LoadProjectsResponse
+
+view : Model -> List (Html Msg)
+view model = projectsView model model.projects
+
+{-
         ProjectPage name ->
             case List.head (List.filter (\p -> p.name == name) model.projects) of
                 Just project ->
@@ -39,22 +59,26 @@ view model =
         -- TODO: get rid of this
         _ ->
             []
+-}
 
 
-projectsView : AppModel -> List Project -> List (Html Msg)
+projectsView : Model -> WebData (List Project) -> List (Html Msg)
 projectsView model projects =
     let
         mdlCtx = { model = model.mdl, msg = Mdl }
-        newprojects =
-            List.indexedMap (renderProject model) (search projects)
+        projects_ = case projects of
+          Success [] -> render404 "Zero projects. Maybe add one?"
+          Success ps -> List.indexedMap (renderProject model) ps
+--          Failure e  -> render400 "Error while loading projects: " ++ e
+          _ -> []
+--        newprojects =
+--            List.indexedMap (renderProject model) (search projects)
     in
-        renderHeader mdlCtx (defaultHeader "Projects" |> createButton (GotoRoute NewProject))
-            ++ if List.isEmpty newprojects then
-                render404 "Zero projects. Maybe add one?"
-               else
-                newprojects
+--        renderHeader mdlCtx (defaultHeader "Projects" |> createButton (GotoRoute NewProject))
+      projects_
 
 
+{-
 newProjectView : AppModel -> List (Html Msg)
 newProjectView model =
     let
@@ -126,9 +150,10 @@ newProjectView model =
                 ]
                 [ text "Create project" ]
            ]
+-}
 
 
-renderProject : AppModel -> Int -> Project -> Html Msg
+renderProject : Model -> Int -> Project -> Html Msg
 renderProject model i project =
     Options.div
         [ Elevation.e2
@@ -137,14 +162,14 @@ renderProject model i project =
         ]
         [ h3
             []
-            [ a (onClickPage GotoRoute (Route.Project project.name))
+            [ a (onClickPage (External << GotoRoute) (Route.Project project.projectName))
                 [ Options.span
                     [ Options.css "margin" "16px" ]
-                    [ text (project.name) ]
+                    [ text (project.projectName) ]
                 ]
             , small
                 [ class "hidden-xs" ]
-                [ text ("(" ++ project.description ++ ")") ]
+                [ text ("(" ++ withDefault "" project.projectDescription ++ ")") ]
               -- TODO: correct index
             , Menu.render Mdl
                 [ i + 10 ]
@@ -167,7 +192,7 @@ renderProject model i project =
                     ]
                 ]
             ]
-        , if List.isEmpty project.jobsets then
+        , if False then
             Options.span
                 [ Options.center
                 , Options.css "margin" "30px"
@@ -177,27 +202,45 @@ renderProject model i project =
             Table.table [ Options.css "width" "100%" ]
                 [ Table.thead []
                     [ Table.tr []
-                        [ Table.th [] [ text "Jobset", jobsetHelp model ]
+                        [ Table.th [] [ text "Jobset"] --, jobsetHelp model ]
                         , Table.th [] [ text "Description" ]
                         , Table.th [] [ text "Job status" ]
                         , Table.th [] [ text "Last evaluation" ]
                         ]
                     ]
-                , Table.tbody []
+{-                , Table.tbody []
                     (search project.jobsets
                         |> List.map
                             (\jobset ->
                                 Table.tr []
                                     [ Table.td []
                                         [ a
-                                            (onClickPage GotoRoute (Jobset project.name jobset.id))
-                                            [ text jobset.name ]
+                                            (onClickPage GotoRoute (Jobset project.projectName jobset.id))
+                                            [ text jobset.jobsetName ]
                                         ]
-                                    , Table.td [] [ text jobset.description ]
+                                    , Table.td [] [ text jobset.jobsetDescription ]
                                     , Table.td [] (statusLabels jobset.succeeded jobset.failed jobset.queued)
                                     , Table.td [] [ text jobset.lastEvaluation ]
                                     ]
                             )
-                    )
+                    )-}
                 ]
         ]
+
+
+update : AppEnv -> Msg -> Model -> (( Model, Cmd Msg ), ExternalMsg)
+update env msg model =
+  case msg of
+    Mdl msg_ ->
+      Material.update msg_ model
+        => NoOp
+
+    LoadProjectsResponse w ->
+      { model | projects = w }
+        => Cmd.none
+          => NoOp
+
+    External e ->
+      model
+        => Cmd.none
+          => e

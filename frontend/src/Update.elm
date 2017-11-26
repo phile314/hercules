@@ -4,9 +4,10 @@ import Debug
 import Material
 import Models exposing (..)
 import Msg exposing (..)
-import Components.LiveSearch as LiveSearch
+--import Components.LiveSearch as LiveSearch
 import Route exposing (..)
 import Pages.Login as Login
+import Pages.Project as Project
 import Utils exposing ((=>))
 
 update : Msg -> AppModel -> ( AppModel, Cmd Msg )
@@ -24,6 +25,17 @@ update msg model =
         (LoginUserClick, _) ->
             ( model, Route.modifyUrl Login)
 
+        (ProjectMsg subMsg, ProjectPage subModel) ->
+            let
+              ((pageModel, cmd), msgFromPage) = Project.update model.appEnv subMsg subModel
+            in
+              case msgFromPage of
+                (Project.NoOp) ->
+                  { model | currentPage = ProjectPage pageModel }
+                    => Cmd.map ProjectMsg cmd
+                (Project.GotoRoute r) ->
+                  model => Route.modifyUrl r
+
         (LoginMsg subMsg, LoginPage subModel) ->
             let
               ((pageModel, cmd), msgFromPage) = Login.update model.appEnv subMsg subModel
@@ -40,12 +52,12 @@ update msg model =
         (PreferencesClick, _) ->
             ( model, Cmd.none )
 
-        (LiveSearchMsg searchmsg, _) ->
+{-        (LiveSearchMsg searchmsg, _) ->
             let
                 ( newmodel, cmds ) =
                     LiveSearch.update searchmsg model
             in
-                ( newmodel, Cmd.map LiveSearchMsg cmds )
+                ( newmodel, Cmd.map LiveSearchMsg cmds )-}
 
         (GotoRoute route, _) ->
           (model, Route.modifyUrl route)
@@ -62,7 +74,7 @@ update msg model =
           model => Cmd.none
 
 setRoute : Maybe Route -> AppModel -> ( AppModel, Cmd Msg)
-setRoute route model =
+setRoute route model = Debug.log ("setting route") (
   case route of
 
     Nothing -> { model | currentPage = HomePage } => Cmd.none
@@ -71,8 +83,12 @@ setRoute route model =
 
     Just Login -> { model | currentPage = LoginPage Login.initialModel } => Cmd.none
 
-    Just (Project p) -> { model | currentPage = ProjectPage p } => Cmd.none
+    Just (Project p) ->
+      let
+        ( m, cmd ) = Project.init model.appEnv
+      in
+        { model | currentPage = ProjectPage m } => Cmd.map ProjectMsg cmd
     
     Just NewProject -> { model | currentPage = NewProjectPage } => Cmd.none
 
-    Just (Jobset a b) -> { model | currentPage = JobsetPage a b } => Cmd.none
+    Just (Jobset a b) -> { model | currentPage = JobsetPage a b } => Cmd.none)

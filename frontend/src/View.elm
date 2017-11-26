@@ -2,7 +2,6 @@ module View exposing (..)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
-import Maybe
 import List
 import Material.Scheme
 import Material.Color as Color
@@ -10,12 +9,12 @@ import Material.Layout as Layout
 import Material.Options as Options
 import Material.Footer as Footer
 import Components.Navbar as Navbar
-import Pages.Project exposing (..)
-import Pages.Jobset as Jobset exposing (..)
-import Pages.Login as Login
+import Pages.Project
+--import Pages.Jobset as Jobset exposing (..)
+import Pages.Login
 import Msg exposing (..)
 import Models exposing (..)
-import Utils exposing (..)
+--import Utils exposing (..)
 
 
 view : AppModel -> Html Msg
@@ -78,21 +77,22 @@ viewBody model =
 pageToView : AppModel -> List (Html Msg)
 pageToView model =
     case model.currentPage of
-        HomePage ->
-            Pages.Project.view model
+        HomePage -> []
+--            Pages.Project.view model
 
         LoginPage m ->
-            Login.view m
+            Pages.Login.view m
               |> List.map (Html.map LoginMsg)
 
-        ProjectPage name ->
-            Pages.Project.view model
+        ProjectPage m ->
+            Pages.Project.view m
+              |> List.map (Html.map ProjectMsg)
 
-        NewProjectPage ->
-            Pages.Project.view model
+        NewProjectPage -> []
+--            Pages.Project.view model
 
-        JobsetPage projectName jobsetName ->
-            case List.head (List.filter (\p -> p.name == projectName) model.projects) of
+        JobsetPage projectName jobsetName -> []
+{-            case List.head (List.filter (\p -> p.name == projectName) model.projects) of
                 Just project ->
                     case List.head (List.filter (\j -> j.name == jobsetName) project.jobsets) of
                         Just jobset ->
@@ -102,4 +102,4 @@ pageToView model =
                             render404 ("Jobset " ++ jobsetName ++ " does not exist.")
 
                 Nothing ->
-                    render404 ("Project " ++ projectName ++ " does not exist.")
+                    render404 ("Project " ++ projectName ++ " does not exist.")-}

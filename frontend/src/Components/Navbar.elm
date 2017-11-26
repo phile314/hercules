@@ -74,7 +74,7 @@ view model =
                     ++ (breadCrumbs model)
                 )
             , Layout.spacer
-            , Layout.navigation []
+{-            , Layout.navigation []
                 [ Html.map LiveSearchMsg (LiveSearch.view model)
                 , span [] (Maybe.withDefault [] (Maybe.map (\user -> [ text user.name ]) model.user))
                 , Menu.render Mdl
@@ -85,6 +85,6 @@ view model =
                     , Menu.icon "account_circle"
                     ]
                     menuItems
-                ]
+                ]-}
             ]
         ]
