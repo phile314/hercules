@@ -10,27 +10,33 @@ import UrlParser exposing (Parser, (</>), map, int, oneOf, s, string, parsePath)
 -}
 type Route
     = Projects
+    | Project String
 
 
 routeParser : Parser (Route -> a) a
 routeParser =
     oneOf
         [ map Projects (s "")
+        , map Projects (s "project")
+        , map Project  (s "project" </> string)
         ]
 
 
 routeToURL : Route -> String
 routeToURL route =
-    case route of
-        Projects ->
-            "/project/"
+  case route of
+    Projects ->
+      "/project/"
+    Project n ->
+      "/project/" ++ n
 
 
 routeToTitle : Route -> String
 routeToTitle route =
-    case route of
-        Projects ->
-            "Projects"
+  case route of
+    Projects ->
+      "Projects"
+    Project n -> "Project " ++ n
 
 
 modifyUrl : Route -> Cmd msg

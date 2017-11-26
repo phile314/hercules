@@ -3,7 +3,6 @@ module Update exposing (..)
 import Debug
 import Material
 import Models exposing (..)
-import Models.AppEnv exposing (..)
 import Msg exposing (..)
 import Route exposing (..)
 import Pages.Project as Project
@@ -45,10 +44,12 @@ setRoute route model =
 
     Nothing -> { model | currentPage = InitPage } => Cmd.none
 
-    (Just Projects) ->
+    Just Projects ->
       let
         ( m, cmd ) = Project.init model.appEnv
       in
         { model | currentPage = ProjectPage m } => Cmd.map ProjectMsg cmd
+
+    Just (Project n) -> model => Cmd.none -- TODO
 
 

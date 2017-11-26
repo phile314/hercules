@@ -161,12 +161,12 @@ renderProject model i project =
         ]
         [ h3
             []
-            [ {-a (onClickPage (External << GotoRoute) (Route.Project project.projectName))
+            [ a (onClickPage (External << GotoRoute) (Route.Project project.projectName))
                 [ Options.span
                     [ Options.css "margin" "16px" ]
                     [ text (project.projectName) ]
                 ]
-            ,-} small
+            , small
                 [ class "hidden-xs" ]
                 [ text ("(" ++ withDefault "" project.projectDescription ++ ")") ]
               -- TODO: correct index
