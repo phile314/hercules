@@ -3,6 +3,7 @@ module Utils exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
+import Http
 import Json.Decode as Json
 import Material
 import Material.Elevation as Elevation
@@ -11,6 +12,7 @@ import Material.Color as Color
 import Material.Icon as Icon
 import Material.Options as Options
 import Route exposing (..)
+import RemoteData
 
 (=>) : a -> b -> ( a, b )
 (=>) =
@@ -160,3 +162,6 @@ renderHeader mdlCtx h =
 
 catMaybes : List (Maybe a) -> List a
 catMaybes = List.filterMap identity
+
+send : (RemoteData.WebData a -> msg) -> Http.Request a -> Cmd msg
+send f req = Http.send (RemoteData.fromResult >> f) req

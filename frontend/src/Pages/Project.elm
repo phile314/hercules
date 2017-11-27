@@ -1,7 +1,7 @@
 module Pages.Project exposing (..)
 
 import Debug
-import Hercules exposing (Project)
+import Hercules exposing (..)
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import List
@@ -16,18 +16,17 @@ import Material.Textfield as Textfield
 import Material.Toggles as Toggles
 import Models.AppEnv exposing (..)
 import RemoteData exposing (RemoteData(..), WebData)
-import RemoteData.Http
 import Route as Route exposing (..)
 import Utils exposing (..)
 
 
 type alias Model =
-  { projects : WebData (List Project)
+  { projects : WebData (List ProjectWithJobsets)
   , mdl : Material.Model
   }
 
 type Msg
-  = LoadProjectsResponse (WebData (List Project))
+  = LoadProjectsResponse (WebData (List ProjectWithJobsets))
   | External ExternalMsg
   | Mdl (Material.Msg Msg)
 
@@ -38,7 +37,7 @@ type ExternalMsg
 init : AppEnv -> ( Model, Cmd Msg)
 init env =
   { projects = Loading, mdl = Material.model }
-    => Hercules.getProjects env.backendURL LoadProjectsResponse
+    => send LoadProjectsResponse (Hercules.getProjectWithJobsets env.backendURL)
 
 view : Model -> List (Html Msg)
 view model = projectsView model model.projects
@@ -61,7 +60,7 @@ view model = projectsView model model.projects
 -}
 
 
-projectsView : Model -> WebData (List Project) -> List (Html Msg)
+projectsView : Model -> WebData (List ProjectWithJobsets) -> List (Html Msg)
 projectsView model projects =
     let
         mdlCtx = { model = model.mdl, msg = Mdl }
@@ -152,8 +151,12 @@ newProjectView model =
 -}
 
 
-renderProject : Model -> Int -> Project -> Html Msg
-renderProject model i project =
+renderProject : Model -> Int -> ProjectWithJobsets -> Html Msg
+renderProject model i projWithJobsets =
+  let
+    project = projWithJobsets.projectWithJobsetsProject
+    jobsets = projWithJobsets.projectWithJobsetsJobsets
+  in
     Options.div
         [ Elevation.e2
         , Options.css "margin" "30px"
@@ -191,7 +194,7 @@ renderProject model i project =
                     ]
                 ]
             ]
-        , if False then
+        , if List.isEmpty jobsets then
             Options.span
                 [ Options.center
                 , Options.css "margin" "30px"
@@ -207,22 +210,22 @@ renderProject model i project =
                         , Table.th [] [ text "Last evaluation" ]
                         ]
                     ]
-{-                , Table.tbody []
-                    (search project.jobsets
-                        |> List.map
-                            (\jobset ->
-                                Table.tr []
-                                    [ Table.td []
-                                        [ a
-                                            (onClickPage GotoRoute (Jobset project.projectName jobset.id))
-                                            [ text jobset.jobsetName ]
-                                        ]
-                                    , Table.td [] [ text jobset.jobsetDescription ]
-                                    , Table.td [] (statusLabels jobset.succeeded jobset.failed jobset.queued)
-                                    , Table.td [] [ text jobset.lastEvaluation ]
-                                    ]
-                            )
-                    )-}
+                , Table.tbody []
+                    ( List.map
+                          (\jobset ->
+                              Table.tr []
+                                  [ Table.td []
+                                      [ text jobset.jobsetName ] {-[ a
+                                          (onClickPage GotoRoute (Jobset project.projectName jobset.id))
+                                          [ text jobset.jobsetName ]
+                                      ]-}
+                                  , Table.td [] [ text (Maybe.withDefault "" jobset.jobsetDescription) ]
+                                  , Table.td [] [] -- (statusLabels jobset.succeeded jobset.failed jobset.queued)
+                                  , Table.td [] [ text (Maybe.withDefault "" (Maybe.map toString jobset.jobsetLastcheckedtime)) ]
+                                  ]
+                          )
+                          jobsets
+                    )
                 ]
         ]
 
